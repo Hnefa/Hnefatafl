@@ -49,12 +49,6 @@ public class Board {
             }
         }
 
-        // populate edge castles
-        /*this.board[grid_size - 1][grid_size - 1] = "4";
-        this.board[grid_size - 1][0] = "4";
-        this.board[0][grid_size - 1] = "4";
-        this.board[0][0] = "4";*/
-
         // Populate Castle list
         this.castles = new Position[5];
         this.castles[0] = new Position(center, center);// center castle first
@@ -443,11 +437,6 @@ public class Board {
         Move m = new Move(from, to);
         return m;
     }
-
-
-    
-
-
 
     /**
      * Checks all possible moves. returns the move that is closest to the king.
@@ -2409,12 +2398,6 @@ public class Board {
             return false;
         }
 
-        // Prevent movement into the center
-        /*Position cent = new Position(this.center, this.center);
-        if (p2.compare(cent)) {
-            return false;
-        }*/
-
         // Prevent movement to castle positions
         for (Position cas : this.castles) {
             if (p2.compare(cas)) {
@@ -2485,27 +2468,5 @@ public class Board {
     public String[][] getBoard () {
         return this.board;
     }
-
-    /*public ArrayList<Position> getTakePiecePositions (Position p) {
-        int player = getPosition(p);
-        ArrayList<Position> captures = new ArrayList<Position>();
-
-        if (player == 1 || player == 2 || player == 3) {
-            if (player == 1) {
-                for (int i = 1; i < grid_size - p.getX(); i++) {
-                    if (getLocation(p.getX(), p.getY() + i) != 0) {
-                        if (getLocation(p.getX(), p.getY() + i) == 2 && getLocation(p.getX(), p.getY() + i + 1) == 1) {
-                            captures.add(new Position(p.getX(), p.getY() + i - 1));
-                        }
-                        break;
-                    } else {
-                        if (getLocation())
-                    }
-                }
-                    this.board[p.getX()][p.getY() + i]
-                }
-            }
-        }
-        if (player == 1) {
-    }*/
 }
+
