@@ -98,7 +98,6 @@ public class CornerBlockingAI implements Player {
         }
 
 
-
         // Priority #4 : Take Defensive Position
         if (b.doesEnemyOccupyEdge(player)) {
             ArrayList<Position> occupied = b.getEnemyOccupiedEdges(player);
@@ -163,9 +162,6 @@ public class CornerBlockingAI implements Player {
             for(Move m: potentialCaptures) {
                 int x = m.getTo().getX();
                 int y = m.getTo().getY();
-                /*if (2 < x && x < b.getBoard().length -3) {
-                    potentialCaptures.remove(m);
-                }*/
             }
 
             if (potentialCaptures.size() > 0) {
@@ -520,3 +516,4 @@ public class CornerBlockingAI implements Player {
         return m;
     }
 }
+
