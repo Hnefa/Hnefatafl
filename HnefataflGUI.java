@@ -27,13 +27,12 @@ public class HnefataflGUI {
         JPanel centerPanel = new JPanel();
         JPanel lowerPanel = new JPanel();
 
-        // Create a NumberFormatter that only accepts integers
         NumberFormat format = NumberFormat.getIntegerInstance();
         NumberFormatter formatter = new NumberFormatter(format);
         formatter.setValueClass(Integer.class);
-        formatter.setAllowsInvalid(false); // Prevents non-integer input
-        formatter.setMinimum(0);           // Optional: set min value
-        formatter.setMaximum(111);         // Optional: set max value
+        formatter.setAllowsInvalid(false); 
+        formatter.setMinimum(0);          
+        formatter.setMaximum(111);        
 
         gridSize = new JFormattedTextField(formatter);
         gridSize.setColumns(10);
@@ -63,10 +62,6 @@ public class HnefataflGUI {
 
     }
 
-    /*public void displayMessage(String s) {
-        JOptionPane.showMessageDialog(null, s);
-    }*/
-
     public HnefataflGUI(int size, Board b) {
         this.board = new JButton[size][size];
         this.size = size;
@@ -76,13 +71,11 @@ public class HnefataflGUI {
         frame.setSize(800, 800);
 
         frame.setLayout(new GridLayout(size + 1, size));
-        //frame.add(this.next);
 
         createBoard(b);
         this.next = new JButton("Next");
         this.next.setVisible(false);
-        //
-        //
+   
         frame.add(this.next);
         frame.setVisible(true);
     }
@@ -112,8 +105,6 @@ public class HnefataflGUI {
                 } else {
                     square.setBackground(new Color(240, 217, 181)); // light
                 }
-
-                //
 
                 board[row][col] = square;
                 frame.add(square);
@@ -163,3 +154,4 @@ public class HnefataflGUI {
     }
 
 }
+
