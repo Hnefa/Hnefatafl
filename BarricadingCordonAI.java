@@ -181,23 +181,6 @@ public class BarricadingCordonAI implements Player {
                 }
             }
 
-            // Priority #3 : Capture Non-Center Pieces
-            /* PriorityQueue<Move> potentialCaptures = b.getPossibleCaptures(player);
-            if (potentialCaptures.size() > 0 && !cordonComplete) {
-                // Remove center pieces
-                for(Move m: potentialCaptures) {
-                    int x = m.getTo().getX();
-                    int y = m.getTo().getY();
-                }
-
-                if (potentialCaptures.size() > 0) {
-                    Move capture = validateCaptureMove(potentialCaptures, b);
-                    if (!b.isBlockingKing(capture.getFrom())) {
-                        return capture;
-                    }
-                }
-            }
-    */
             // Priority #6 : Take Edge Key Location
             if (b.canTakeEdgeKeyLocation(player) && !cordonComplete) {
                 ArrayList<Move> corners = new ArrayList<>();
@@ -818,3 +801,4 @@ public class BarricadingCordonAI implements Player {
         return m;
     }
 }
+
