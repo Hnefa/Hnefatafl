@@ -1,22 +1,19 @@
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-import static java.lang.Math.abs;
-
-public class KingsGuardAI implements Player {
+public class FootInTheDoorAI implements Player {
 
     private boolean hasKingExitedThrone;
     private Position[] c1;
     private Position[] c2;
     private Position[] c3;
     private Position[] c4;
-
+    private Position[] edges;
+    private Position[] middleEdges;
+    private Position[] riskyEdges;
     private Position[] throneExits;
     int bl;
-    public KingsGuardAI () {
-        this.hasKingExitedThrone = false;
 
-    }
     public void initialize (int i) {
         this.bl = i;
         this.c1 = new Position[3];
@@ -43,6 +40,30 @@ public class KingsGuardAI implements Player {
         this.c4[1] = new Position(bl - 3, bl - 1);
         this.c4[2] = new Position(bl - 2, bl - 2);
 
+        this.edges = new Position[8];
+        this.edges[0] = new Position(2, 0);
+        this.edges[1] = new Position(0, 2);
+        this.edges[2] = new Position(bl - 3, 0);
+        this.edges[3] = new Position(0, bl - 3);
+        this.edges[4] = new Position(bl - 1, 2);
+        this.edges[5] = new Position(2, bl - 1);
+        this.edges[6] = new Position(bl - 1 , bl - 3);
+        this.edges[7] = new Position(bl - 3, bl - 1);
+        this.middleEdges = new Position[4];
+        this.middleEdges[0] = new Position(1, 1);
+        this.middleEdges[1] = new Position(1, bl - 2);
+        this.middleEdges[2] = new Position(bl - 2, 1);
+        this.middleEdges[3] = new Position(bl - 2, bl - 2);
+        this.riskyEdges = new Position[8];
+        this.riskyEdges[0] = new Position(0, 1);
+        this.riskyEdges[1] = new Position(1, 0);
+        this.riskyEdges[2] = new Position(0, bl - 2);
+        this.riskyEdges[3] = new Position(bl - 2, 0);
+        this.riskyEdges[4] = new Position(bl - 1, 1);
+        this.riskyEdges[5] = new Position(1, bl - 1);
+        this.riskyEdges[6] = new Position(bl - 1, bl - 2);
+        this.riskyEdges[7] = new Position(bl - 2, bl - 1);
+
         //
         int c = i/2;
         this.throneExits = new Position[8];
@@ -55,8 +76,41 @@ public class KingsGuardAI implements Player {
         this.throneExits[6] = new Position(c - 2, c);
         this.throneExits[7] = new Position(c - 1, c);
     }
-    public Move move (Board b, int roundNo, String player) {
-        // Exit throneroom if possible.
+
+    public Move move(Board b, int roundNo, String player) {
+        // Priority #0 : WIN
+        Move winningMove = b.getKingWinningMove(player);
+        if (winningMove != null) {
+            return winningMove;
+        }
+
+        // Priority #1 : Take Middle Key Location
+        if (b.canTakeMiddleKeyLocation(player)) {
+            ArrayList<Move> mids = new ArrayList<>();
+            for (Position pos : this.middleEdges) {
+                ArrayList<Move> temp = b.possibleMovesToPosition(player, pos, false);
+                mids.addAll(temp);
+            }
+
+            if (!mids.isEmpty()) {
+                Move mid = evaluateMiddleMoves(mids, b, player);
+                //mid = b.getClosestMove(mid.getTo(), mid.getFrom(), player);
+                return mid;
+            }
+        }
+
+        // Priority #2 : Take Edge Key Location
+        if (b.canTakeEdgeKeyLocation(player)) {
+            ArrayList<Move> corners = new ArrayList<>();
+            for (Position pos : this.edges) {
+                ArrayList<Move> temp = b.possibleMovesToPosition(player, pos, false);
+                corners.addAll(temp);
+            }
+
+            Move corner = evaluateCornerMoves(corners, b, player);
+        }
+
+        // Priority #3 : Take Edge Key Location
         if (!hasKingExitedThrone) {
             Move m = getExitThroneMove(b, player);
             if (m != null) {
@@ -64,13 +118,7 @@ public class KingsGuardAI implements Player {
             }
         }
 
-        // MoveKingToCaste
-        Move winningMove = b.getKingWinningMove(player);
-        if (winningMove != null) {
-            return winningMove;
-        }
-
-        // Priority 3: Protect King
+        // Priority #4 : Protect King
         if (b.canCaptureKing()) {
             Move m = b.getCaptureKingMove();
             if (m != null) {
@@ -82,20 +130,7 @@ public class KingsGuardAI implements Player {
 
         }
 
-        // If king's guard is less than 2, get additional guards.
-        if (b.getKingsGuardNumber() < 2) {
-            Move m = b.getKingsGuardMove(player);
-            if (m != null) {
-                return m;
-            } else {
-                m = b.getMoveClosestToKing(player);
-                if (m != null) {
-                    return m;
-                }
-            }
-        }
-
-        // Move king towards exit
+        // Priority #5 : Move King Towards Exit
         ArrayList<Move> cornerMoves = b.getEdgeCornerMovesForKing();
         if (cornerMoves != null) {
             Move m = cornerMoves.get(0);
@@ -107,12 +142,12 @@ public class KingsGuardAI implements Player {
             if (exits.size() > 0) {
                 Move ex = getBestExitMove(exits, b, player);
                 if (ex != null) {
-                     return ex;
+                    return ex;
                 }
             }
         }
 
-        // Fight and take piece closest to king
+        // Priority #6 : Fight
         PriorityQueue<Move> captureMoves = b.getPossibleCaptures(player);
         if (captureMoves == null) {
             int a = 0;
@@ -159,6 +194,82 @@ public class KingsGuardAI implements Player {
     }
 
     /**
+     * This function evaluates all moves that take the edge key position and returns the best one.
+     * @param corners The edge moves available.
+     * @param b the board.
+     * @return The best available move.
+     */
+    private Move evaluateCornerMoves(ArrayList<Move> corners, Board b, String player) {
+        Move best = null;
+        int bestScore = 0;
+
+        for (Move m : corners) {
+            int score = 1;
+
+            // reward/punish middle corner movements
+            for (Position p : this.edges) {
+                if (m.getTo().compare(p)) {
+                    score += 4;
+                }
+                if (m.getFrom().compare(p)) {
+                    if (b.possibleMovesToPosition(player, m.getFrom(), true).isEmpty()) {
+                        score -= 16;
+                    }else {
+                        score -= 4;
+                    }
+
+                }
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                best = m;
+            }
+        }
+
+        // Idk if this will happen but IF
+        if (best == null) {
+            return corners.get(0);
+        }
+        return best;
+    }
+
+    /**
+     * This function evaluates all moves that take the middle key position and returns the best one.
+     * @param mids The middle moves available.
+     * @param b the board.
+     * @return The best available move.
+     */
+    private Move evaluateMiddleMoves(ArrayList<Move> mids, Board b, String player) {
+        Move best = null;
+        int bestScore = 0;
+
+        for (Move m : mids) {
+            int score = 1;
+
+            if (middleEdges[0].compare(m.getFrom()) || middleEdges[1].compare(m.getFrom()) || middleEdges[2].compare(m.getFrom()) || middleEdges[3].compare(m.getFrom())) {
+                if (b.possibleMovesToPosition(b.getOpposingPlayer(player), m.getFrom(), true).isEmpty()) {
+                    score -= 20;
+                }else {
+                    score -= 5;
+                }
+                //score -= 10;
+            }
+
+            if (score > bestScore) {
+                bestScore = score;
+                best = m;
+            }
+        }
+
+        // Idk if this will happen but IF
+        if (best == null) {
+            return mids.get(0);
+        }
+        return best;
+    }
+
+    /**
      * This function moves the king as close to open exit as possible
      * @param goals the open exits.
      * @param b the board.
@@ -194,16 +305,18 @@ public class KingsGuardAI implements Player {
         int kx = k.getX();
         int ky = k.getY();
 
-        int closest = Integer.MAX_VALUE;
+        int bestScore = 0;
         Move bestMove = null;
+        Position hnefi = b.getKing();
 
         for (Move m : moves) {
-            int mx = m.getTo().getX();
-            int my = m.getTo().getY();
-            int dist = abs(kx - mx) + abs(ky - my);
+            int score = 1;
+            if (m.getFrom().compare(hnefi)) {
+                score += 100;
+            }
 
-            if (dist < closest) {
-                closest = dist;
+            if (score > bestScore) {
+                bestScore = score;
                 bestMove = m;
             }
         }
@@ -289,5 +402,4 @@ public class KingsGuardAI implements Player {
         }
         return lst;
     }
-
 }

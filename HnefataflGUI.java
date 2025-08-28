@@ -10,8 +10,8 @@ public class HnefataflGUI {
     private JFrame titleFrame;
     private JButton[][] board;
     private JFormattedTextField gridSize;
-    private String[] attackingPlayers = {"Human", "Aggressive AI", "Barricading AI", "Random AI"};
-    private String[] defendingPlayers = {"Human", "Fortification AI", "King's Guard AI", "Random AI"};
+    private String[] attackingPlayers = {"Human", "Aggressive AI", "Barricading Aggressive AI", "Barricading Cordon AI", "Hnefi Focused AI","Random AI"};
+    private String[] defendingPlayers = {"Human", "Fortification AI", "Defensive AI", "King's Guard AI", "Foot-In-The-Door AI", "Mobile King AI", "Random AI"};
     private JComboBox<String> p1;
     private JComboBox<String> p2;
     private JButton start;

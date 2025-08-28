@@ -1,9 +1,7 @@
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-import static java.lang.Math.abs;
-
-public class KingsGuardAI implements Player {
+public class MobileKingAI implements Player {
 
     private boolean hasKingExitedThrone;
     private Position[] c1;
@@ -13,10 +11,11 @@ public class KingsGuardAI implements Player {
 
     private Position[] throneExits;
     int bl;
-    public KingsGuardAI () {
-        this.hasKingExitedThrone = false;
 
+    public MobileKingAI () {
+        this.hasKingExitedThrone = false;
     }
+
     public void initialize (int i) {
         this.bl = i;
         this.c1 = new Position[3];
@@ -55,7 +54,8 @@ public class KingsGuardAI implements Player {
         this.throneExits[6] = new Position(c - 2, c);
         this.throneExits[7] = new Position(c - 1, c);
     }
-    public Move move (Board b, int roundNo, String player) {
+
+    public Move move(Board b, int roundNo, String player) {
         // Exit throneroom if possible.
         if (!hasKingExitedThrone) {
             Move m = getExitThroneMove(b, player);
@@ -82,19 +82,6 @@ public class KingsGuardAI implements Player {
 
         }
 
-        // If king's guard is less than 2, get additional guards.
-        if (b.getKingsGuardNumber() < 2) {
-            Move m = b.getKingsGuardMove(player);
-            if (m != null) {
-                return m;
-            } else {
-                m = b.getMoveClosestToKing(player);
-                if (m != null) {
-                    return m;
-                }
-            }
-        }
-
         // Move king towards exit
         ArrayList<Move> cornerMoves = b.getEdgeCornerMovesForKing();
         if (cornerMoves != null) {
@@ -107,12 +94,12 @@ public class KingsGuardAI implements Player {
             if (exits.size() > 0) {
                 Move ex = getBestExitMove(exits, b, player);
                 if (ex != null) {
-                     return ex;
+                    return ex;
                 }
             }
         }
 
-        // Fight and take piece closest to king
+        // Fight with king, else capture with hunn
         PriorityQueue<Move> captureMoves = b.getPossibleCaptures(player);
         if (captureMoves == null) {
             int a = 0;
@@ -194,16 +181,18 @@ public class KingsGuardAI implements Player {
         int kx = k.getX();
         int ky = k.getY();
 
-        int closest = Integer.MAX_VALUE;
+        int bestScore = 0;
         Move bestMove = null;
+        Position hnefi = b.getKing();
 
         for (Move m : moves) {
-            int mx = m.getTo().getX();
-            int my = m.getTo().getY();
-            int dist = abs(kx - mx) + abs(ky - my);
+            int score = 1;
+            if (m.getFrom().compare(hnefi)) {
+                score += 100;
+            }
 
-            if (dist < closest) {
-                closest = dist;
+            if (score > bestScore) {
+                bestScore = score;
                 bestMove = m;
             }
         }
@@ -289,5 +278,4 @@ public class KingsGuardAI implements Player {
         }
         return lst;
     }
-
 }

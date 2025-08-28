@@ -112,22 +112,24 @@ public class HnefataflController {
                 }
             }
         } else {
-
+/*
             gameGui.addNextTurnButton();
             JButton nextButton = gameGui.getNextButton();
             nextButton.addActionListener(e -> {
                AIMove();
             });
+*/
 
-/*
             gameGui.addNextTurnButton();
             JButton nextButton = gameGui.getNextButton();
             nextButton.addActionListener(e -> {
+                int z = 0;
                 for (int i = 0; i < 1000; i++) {
                     AIMove();
+                    z = i;
                 }
-                int z = 999;
-            });*/
+                z = 999;
+            });
         }
     }
 
@@ -161,20 +163,30 @@ public class HnefataflController {
             case "Human":
                 // Do this
                 break;
-            case "Barricading AI":
+            case "Barricading Aggressive AI":
                 // Do this
                 return new CornerBlockingAI();
+            case "Barricading Cordon AI":
+                return new BarricadingCordonAI();
                 //break;
             case "King's Guard AI":
                 // Do this
                 return new KingsGuardAI();
-
+            case "Mobile King AI":
+                return new MobileKingAI();
+            case "Foot-In-The-Door AI":
+                return new FootInTheDoorAI();
+            case "Defensive AI":
+                return new DefensiveAI();
                 //break;
             case "Aggressive AI":
                 return new AttackingHunnFocusedAI();
 
             case "Fortification AI":
                 return new FortificationAI();
+
+            case "Hnefi Focused AI":
+                return new HnefiFocusedAI();
 
             case "Random AI":
                 return new RandomAI();

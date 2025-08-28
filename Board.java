@@ -347,6 +347,103 @@ public class Board {
         return m;
     }
 
+    /**
+     * This function gets the move that is closest to a position
+     * @param goal The position you want to move to.
+     * @param excluded A position list you dont want to move.
+     * @param player The player
+     * @return The move that is closest.
+     */
+    public Move getClosestMoveListExcluded(Position goal, ArrayList<Position> excluded, String player) {
+        double closest = Double.MAX_VALUE;
+        Position from = null;
+        Position to = null;
+
+        ArrayList<Position> lst = getAllBoardPositions(player);
+        for (Position p : lst) {
+            boolean isExcluded = false;
+            for (Position e : excluded) {
+                if (p.compare(e)) {
+                    isExcluded = true;
+                }
+            }
+            if (!isExcluded) {
+                // check x+
+                int val = 1;
+                while (true) {
+                    Position nextPos = new Position(p.getX() + val, p.getY());
+                    if (isValidMove(p, nextPos, player)) {
+                        double dist = getDistanceBetweenPoints(nextPos, goal);
+                        if (dist < closest) {
+                            closest = dist;
+                            from = p;
+                            to = nextPos;
+                        }
+                        val++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // check x-
+                val = 1;
+                while (true) {
+                    Position nextPos = new Position(p.getX() - val, p.getY());
+                    if (isValidMove(p, nextPos, player)) {
+                        double dist = getDistanceBetweenPoints(nextPos, goal);
+                        if (dist < closest) {
+                            closest = dist;
+                            from = p;
+                            to = nextPos;
+                        }
+                        val++;
+                    } else {
+                        break;
+                    }
+
+                }
+
+                // check y+
+                val = 1;
+                while (true) {
+                    Position nextPos = new Position(p.getX(), p.getY() + val);
+                    if (isValidMove(p, nextPos, player)) {
+                        double dist = getDistanceBetweenPoints(nextPos, goal);
+                        if (dist < closest) {
+                            closest = dist;
+                            from = p;
+                            to = nextPos;
+                        }
+                        val++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // check y-
+                val = 1;
+                while (true) {
+                    Position nextPos = new Position(p.getX(), p.getY() - val);
+                    if (isValidMove(p, nextPos, player)) {
+                        double dist = getDistanceBetweenPoints(nextPos, goal);
+                        if (dist < closest) {
+                            closest = dist;
+                            from = p;
+                            to = nextPos;
+                        }
+                        val++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        Move m = new Move(from, to);
+        return m;
+    }
+
 
     
 
@@ -964,6 +1061,274 @@ public class Board {
     }
 
     /**
+     * This function checks if the given player is at the top row.
+     * @param player The player
+     * @return true / false
+     */
+    public boolean isPlayerOccupyingEdgeN (String player) {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(0, i);
+            if (p.equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This function gets the first free position at the northern edge.
+     * @return the position
+     */
+    public Position getFirstFreeEgdeNPosition () {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(0, i);
+            if (p.equals("")) {
+                return new Position(0, i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function gets the first free position at the northern edge.
+     * @return the positions
+     */
+    public ArrayList<Position> getOccupiedEdgeNPosition (String player) {
+        ArrayList<Position> lst = getBarricadeList();
+        for (int i = 0; i < grid_size - 1; i++) {
+            String p = getLocation(0, i);
+            if (p.equals(player)) {
+                lst.add(new Position(0, i));
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * This function checks if the given player is at the bottom row.
+     * @param player The player
+     * @return true / false
+     */
+    public boolean isPlayerOccupyingEdgeS (String player) {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(grid_size - 1, i);
+            if (p.equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This function gets the first free position at the southern edge.
+     * @return the position
+     */
+    public Position getFirstFreeEgdeSPosition () {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(grid_size - 1, i);
+            if (p.equals("")) {
+                return new Position(grid_size - 1, i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function gets the first free position at the western edge.
+     * @return the position
+     */
+    public ArrayList<Position> getOccupiedEdgeSPosition (String player) {
+        ArrayList<Position> lst = getBarricadeList();
+        for (int i = 0; i < grid_size - 1; i++) {
+            String p = getLocation(grid_size - 1, i);
+            if (p.equals(player)) {
+                lst.add(new Position(grid_size - 1, i));
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * This function checks if the given player is at the east row.
+     * @param player The player
+     * @return true / false
+     */
+    public boolean isPlayerOccupyingEdgeE (String player) {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(i, 0);
+            if (p.equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This function gets the first free position at teh eastern edge.
+     * @return the position
+     */
+    public Position getFirstFreeEgdeEPosition () {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(i, 0);
+            if (p.equals("")) {
+                return new Position(i, 0);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function gets the first free position at the eastern edge.
+     * @return the position
+     */
+    public ArrayList<Position> getOccupiedEdgeEPosition (String player) {
+        ArrayList<Position> lst = getBarricadeList();
+        for (int i = 0; i < grid_size - 1; i++) {
+            String p = getLocation(i, 0);
+            if (p.equals(player)) {
+                lst.add(new Position(i, 0));
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * This function checks if the given player is at the west row.
+     * @param player The player
+     * @return true / false
+     */
+    public boolean isPlayerOccupyingEdgeW (String player) {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(i, grid_size - 1);
+            if (p.equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This function gets the first free position at the western edge.
+     * @return the position
+     */
+    public Position getFirstFreeEgdeWPosition () {
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(i, grid_size - 1);
+            if (p.equals("")) {
+                return new Position(i, 0);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function gets the first free position at the western edge.
+     * @return the position
+     */
+    public ArrayList<Position> getOccupiedEdgeWPosition (String player) {
+        ArrayList<Position> lst = getBarricadeList();
+        for (int i = 0; i < grid_size - 1; i++) {
+            String p = getLocation(i, grid_size - 1);
+            if (p.equals(player)) {
+                lst.add(new Position(i, grid_size - 1));
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * This function gets the first free position at the desired column (W, E).
+     * @param column the column
+     * @return the position
+     */
+    public ArrayList<Position> getOccupiedColumn (String player, int column) {
+        ArrayList<Position> lst = getBarricadeList();
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(i, column);
+            if (p.equals(player)) {
+                lst.add(new Position(i, column));
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * This function gets the first free position at the desired row (N, S).
+     * @param row the column
+     * @return the position
+     */
+    public ArrayList<Position> getOccupiedRow (String player, int row) {
+        ArrayList<Position> lst = getBarricadeList();
+        for (int i = 2; i < grid_size - 2; i++) {
+            String p = getLocation(row, i);
+            if (p.equals(player)) {
+                lst.add(new Position(row, i));
+            }
+        }
+        return lst;
+    }
+
+    /**
+     * This function gets the first occupied position in a desired column (E / W).
+     * @param column the row
+     * @return the position
+     */
+    public Position getFirstOccupiedPositionInColumn (String player, int column) {
+        for (int i = 0; i < grid_size; i++) {
+            String p = getLocation(i, column);
+            if (p.equals(player)) {
+                return new Position(i, column);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function gets the first occupied position in a desired row (N / S).
+     * @param row the row
+     * @return the position
+     */
+    public Position getFirstOccupiedPositionInRow (String player, int row) {
+        for (int i = 0; i < grid_size ; i++) {
+            String p = getLocation(row, i);
+            if (p.equals(player)) {
+                return new Position(row, i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This function gets and return a list of all barricade positions.
+     * @return The barricade position.
+     */
+    public ArrayList<Position> getBarricadeList() {
+        ArrayList<Position> lst = new ArrayList();
+
+        // Corner 1
+        lst.add(new Position(2, 0));
+        lst.add(new Position(0, 2));
+        lst.add(new Position(1, 1));
+
+        // Corner 2
+        lst.add(new Position(grid_size - 3, 0));
+        lst.add(new Position(grid_size - 1, 2));
+        lst.add(new Position(grid_size - 2, 1));
+
+        // Corner 3
+        lst.add(new Position(0, grid_size - 3));
+        lst.add(new Position(2, grid_size - 1));
+        lst.add(new Position(1, grid_size - 2));
+
+        // Corner 4
+        lst.add(new Position(grid_size - 1 , grid_size - 3));
+        lst.add(new Position(grid_size - 3, grid_size - 1));
+        lst.add(new Position(grid_size - 2, grid_size - 2));
+
+        return lst;
+    }
+
+    /**
      * This function checks if the given player can take a middle key location.
      * @param player The player
      * @return true / false
@@ -972,9 +1337,9 @@ public class Board {
         ArrayList<Position> team = getAllBoardPositions(player);
         Position[] mid = new Position[4];
         mid[0] = new Position(1, 1);
-        mid[1] = new Position(1, this.board.length - 1);
-        mid[2] = new Position(this.board.length - 1, 1);
-        mid[3] = new Position(this.board.length - 1, this.board.length - 1);
+        mid[1] = new Position(1, this.board.length - 2);
+        mid[2] = new Position(this.board.length - 2, 1);
+        mid[3] = new Position(this.board.length - 2, this.board.length - 2);
 
         for (Position p : team) {
             for (int i = 0; i < 4; i++) {
