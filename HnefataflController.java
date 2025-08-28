@@ -13,9 +13,6 @@ public class HnefataflController {
         this.gui = gui;
 
         setStartButtonBehaviour();
-        //createGameWindow(11, "Random AI", "King's Guard AI");
-
-
     }
 
     public HnefataflController (HnefataflGame game, HnefataflGUI gui, boolean p1_human, boolean p2_human) {
@@ -78,9 +75,6 @@ public class HnefataflController {
 
         if (player1 == "Human" || player2 == "Human") {
             JButton[][] board = gameGui.getBoard();
-        /* Okay, idea is to wire the board and pieces together to you can call the move function. The move function works, just implement it here instead <3
-            look in ou1 java appl dev if u forgot. Thanks me :3 (PS. tell nada she cute af).*/
-
 
             for(int row = 0; row < board.length; row++) {
                 for (int col = 0; col < board.length; col++) {
@@ -106,29 +100,14 @@ public class HnefataflController {
                                 AIMove();
                             }
                         }
-
-                        // You could expand this to track selected square, move piece, etc.
                     });
                 }
             }
         } else {
-/*
             gameGui.addNextTurnButton();
             JButton nextButton = gameGui.getNextButton();
             nextButton.addActionListener(e -> {
                AIMove();
-            });
-*/
-
-            gameGui.addNextTurnButton();
-            JButton nextButton = gameGui.getNextButton();
-            nextButton.addActionListener(e -> {
-                int z = 0;
-                for (int i = 0; i < 1000; i++) {
-                    AIMove();
-                    z = i;
-                }
-                z = 999;
             });
         }
     }
@@ -161,24 +140,25 @@ public class HnefataflController {
     private Player getPlayerFromString (String player) {
         switch (player) {
             case "Human":
-                // Do this
                 break;
             case "Barricading Aggressive AI":
-                // Do this
                 return new CornerBlockingAI();
+                
             case "Barricading Cordon AI":
                 return new BarricadingCordonAI();
-                //break;
+                
             case "King's Guard AI":
-                // Do this
                 return new KingsGuardAI();
+                
             case "Mobile King AI":
                 return new MobileKingAI();
+                
             case "Foot-In-The-Door AI":
                 return new FootInTheDoorAI();
+                
             case "Defensive AI":
                 return new DefensiveAI();
-                //break;
+
             case "Aggressive AI":
                 return new AttackingHunnFocusedAI();
 
@@ -195,3 +175,4 @@ public class HnefataflController {
         return null;
     }
 }
+
